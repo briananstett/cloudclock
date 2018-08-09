@@ -1,0 +1,52 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-cronjob
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: "0/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: {{ .Release.Name }}-pv
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-pvc
+            - name: {{ .Release.Name }}-cm-storage
+              configMap:
+                name: {{ .Release.Name }}-configmap
+                items:
+                - key: SLACK_CHANNELS
+                  path: slackChannels.json
+          serviceAccountName: {{ .Release.Name }}-sa
+          containers:
+          - name: {{ .Release.Name }}-cronjob-container
+            image: {{ .Values.image }}
+            env:
+              - name: SLACK_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Release.Name }}-secrets
+                    key: slackToken
+              - name: MOUNT_PATH
+                valueFrom:
+                  configMapKeyRef:
+                    name: {{ .Release.Name }}-configmap
+                    key: MOUNT_PATH
+              - name: FILE
+                valueFrom:
+                  configMapKeyRef:
+                    name: {{ .Release.Name }}-configmap
+                    key: FILE
+              - name: CLUSTER_NAME
+                valueFrom:
+                  configMapKeyRef:
+                    name: {{ .Release.Name }}-configmap
+                    key: CLUSTER_NAME
+            volumeMounts:
+              - name: {{ .Release.Name }}-pv
+                mountPath: {{ .Values.mountPath }}
+              - name: {{ .Release.Name }}-cm-storage
+                mountPath: /etc/slack
+          restartPolicy: OnFailure

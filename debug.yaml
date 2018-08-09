@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu request for container
+      ranting-woodpecker-cronjob-container'
+  creationTimestamp: null
+  generateName: ranting-woodpecker-cronjob-1533761700-
+  labels:
+    controller-uid: 510d962f-9b4d-11e8-bfea-42010a8001bb
+    job-name: ranting-woodpecker-cronjob-1533761700
+spec:
+  containers:
+  - env:
+    - name: SLACK_TOKEN
+      valueFrom:
+        secretKeyRef:
+          key: slackToken
+          name: ranting-woodpecker-secrets
+    - name: MOUNT_PATH
+      valueFrom:
+        configMapKeyRef:
+          key: MOUNT_PATH
+          name: ranting-woodpecker-configmap
+    - name: FILE
+      valueFrom:
+        configMapKeyRef:
+          key: FILE
+          name: ranting-woodpecker-configmap
+    - name: CLUSTER_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: CLUSTER_NAME
+          name: ranting-woodpecker-configmap
+    image: gcr.io/g-1575-internal-projects/cloudclock:v2
+    command: ["tail", "-f", "/bin/sh"]
+    imagePullPolicy: IfNotPresent
+    name: ranting-woodpecker-cronjob-container
+    resources:
+      requests:
+        cpu: 100m
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /etc/currentState/
+      name: ranting-woodpecker-pv
+    - mountPath: /etc/slack
+      name: ranting-woodpecker-cm-storage
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: ranting-woodpecker-sa-token-vjgc9
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  nodeName: gke-internal-24g-cluster-default-pool-5215ad09-6t6j
+  restartPolicy: OnFailure
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: ranting-woodpecker-sa
+  serviceAccountName: ranting-woodpecker-sa
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: ranting-woodpecker-pv
+    persistentVolumeClaim:
+      claimName: ranting-woodpecker-pvc
+  - configMap:
+      defaultMode: 420
+      items:
+      - key: SLACK_CHANNELS
+        path: slackChannels.json
+      name: ranting-woodpecker-configmap
+    name: ranting-woodpecker-cm-storage
+  - name: ranting-woodpecker-sa-token-vjgc9
+    secret:
+      defaultMode: 420
+      secretName: ranting-woodpecker-sa-token-vjgc9
+status:
+  phase: Pending
+  qosClass: Burstable
