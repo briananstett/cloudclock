@@ -6,5 +6,5 @@ metadata:
 data:
   MOUNT_PATH: {{ .Values.mountPath }}
   FILE: {{ .Values.storeFile }}
-  SLACK_CHANNELS: {{ .Values.slackChannels }}
+  SLACK_CHANNELS: {{ required "A JSON array of slack id is required for an env variable" .Values.slackChannels | quote}}
   CLUSTER_NAME: {{ .Values.clusterName }}

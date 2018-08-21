@@ -1,9 +1,11 @@
-kind: Role
+#In order to get access to the cluster itself, you must have a cluster role as
+#normal roles are namespace scoped
+kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: {{ .Release.Name }}-role
+  name: {{ .Release.Name }}-clusterRole
   namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups: [""]
   resources: ["nodes"]
-  verbs: ["get"]
+  verbs: ["get", "list"]

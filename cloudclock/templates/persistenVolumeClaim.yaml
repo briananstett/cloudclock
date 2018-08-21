@@ -4,7 +4,9 @@ metadata:
   name: {{ .Release.Name }}-pvc
   namespace: {{ .Release.Namespace }}
 spec:
+  {{- if (.Values.storageClassName)}}
   storageClassName: {{ .Values.storageClassName }}
+  {{- end}}
   accessModes:
     - ReadWriteOnce
   resources:

@@ -5,7 +5,7 @@ const { WebClient } = require('@slack/client');
 const async = require('async');
 
 (async function main(){
-    const token = process.env.SLACK_TOKEN;
+    let token = process.env.SLACK_TOKEN;
     const mountPath = process.env.MOUNT_PATH || "/tmp";
     const file = process.env.FILE || 'nodeState.json';
     const slackChannels = require('/etc/slack/slackChannels.json');
@@ -13,14 +13,14 @@ const async = require('async');
     const web = new WebClient(token);
 
     //Authentication for pod
-        const Client = require('kubernetes-client').Client;
-        const config = require('kubernetes-client').config;
-        const client = new Client({ config: config.getInCluster() });
+    //     const Client = require('kubernetes-client').Client;
+    //     const config = require('kubernetes-client').config;
+    //     const client = new Client({ config: config.getInCluster() });
 
     //Authentication for running locally
-    // const Client = require('kubernetes-client').Client;
-    // const config = require('kubernetes-client').config;
-    // const client = new Client({ config: config.fromKubeconfig(), version: '1.9' });
+    const Client = require('kubernetes-client').Client;
+    const config = require('kubernetes-client').config;
+    const client = new Client({ config: config.fromKubeconfig(), version: '1.9' });
 
     await client.loadSpec();
 
