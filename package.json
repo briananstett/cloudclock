@@ -13,6 +13,6 @@
     "@slack/client": "^5.0.2",
     "async": "^2.6.3",
     "kubernetes-client": "^9.0.0",
-    "moment": "^2.29.0"
+    "moment": "^2.29.4"
   }
 }
